@@ -124,10 +124,25 @@ public class Game implements AnimatedElement
 			}
 		}
 
+		/* remove dead aliens */
+		for(Iterator<Alien> ita = aliens.iterator(); ita.hasNext();)
+		{
+			Alien a = ita.next();
+			if(!a.isAlive())
+				ita.remove();
+		}
+
 		/* check if all aliens dead */
 		if(aliens.isEmpty())
 		{
+			/* go to next level */
 			level++;
+
+			/* every 5 levels you get another life */
+			if(level % 5 == 0)
+				lives++;
+
+			/* start next level */
 			initGameElements();
 		}
 		
@@ -176,7 +191,11 @@ public class Game implements AnimatedElement
 		/* check collisions between shells and aliens */
 		for(Iterator<Alien> ita = aliens.iterator(); ita.hasNext();)
 		{
+			/* check if this alien is hit */
 			Alien a = ita.next();
+			boolean isHit = false;
+
+			/* iterate over all shells */
 			for(Iterator<Shell> its = shells.iterator();
 					its.hasNext(); )
 			{
@@ -184,11 +203,15 @@ public class Game implements AnimatedElement
 				if(a.collidesWith(s.x, s.y, 
 						s.width, s.height))
 				{
-					ita.remove();
+					isHit = true;
 					its.remove();
 					break;
 				}
 			}
+			
+			/* if hit, then record it */
+			if(isHit)
+				a.getHit();
 		}
 		
 		/* check if tank fires weapon */
@@ -198,7 +221,9 @@ public class Game implements AnimatedElement
 			if(s != null)
 				shells.add(s);
 		}
-		// TODO bomb?
+		// TODO limit bombs
+		if(controller.isActivated(CONTROL_BOMB))
+			aliens.clear();
 
 		/* check if aliens fire weapons */
 		for(Iterator<Alien> ita = aliens.iterator(); ita.hasNext();)
