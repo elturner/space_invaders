@@ -51,8 +51,10 @@ public class AlienChoreographer
 			case 12:
 				return makeFigureEight(level/2);
 			case 13:
-				return makeRoamingBox(level, 3);
+				return makeZigZag(level/4, 3);
 			case 14:
+				return makeRoamingBox(level, 3);
+			case 15:
 				return makeTheEnd(level);
 			default:
 				return makeBox(3, level);
@@ -471,6 +473,58 @@ public class AlienChoreographer
 						+ verticalSpacing)*r,
 					0.0005 * level);
 				a.setHealth(grid[r][c]);
+				aliens.add(a);
+			}
+
+		/* return constructed choreography */
+		return aliens;
+	}
+	
+	public static ArrayList<Alien> makeZigZag(int level, int hp)
+	{
+		/* figure out how many aliens to place */
+		int aliensPerRow = maxAliensPerRow;
+		if(level < 5)
+			aliensPerRow = level * maxAliensPerRow / 5;
+		
+		int numberAlienRows = 8;
+		if(level + 4 < numberAlienRows)
+			numberAlienRows = level + 4;
+
+		/* determine the horizontal travel distance for
+		 * these aliens */
+		double ht = Game.width - aliensPerRow*(Alien.width 
+					+ horizontalSpacing) 
+					+ horizontalSpacing;
+
+		/* make the path for the top-left alien */
+		double s = 1 + level; /* speed (in pixels / frame) */
+		int halfsize = 1 + (int) (Math.round(ht / s));
+		double[] px = new double[2 * halfsize];
+		double[] py = new double[ px.length ];
+		for(int i = 0; i < halfsize; i++)
+		{
+			px[i] = s*i;
+			py[i] = Alien.height;
+			
+			px[i+halfsize] = ht - px[i];
+			py[i+halfsize] = py[i];
+		}
+
+		/* place aliens in new list */
+		ArrayList<Alien> aliens = new ArrayList<Alien>();
+		for(int i = 0; i < numberAlienRows; i++)
+			for(int j = 0; j < aliensPerRow; j++)
+			{
+				Alien a = new Alien(px, py,
+						0.002 * level,
+						(horizontalSpacing 
+						+ Alien.width)*j, 
+						(verticalSpacing 
+						+ Alien.height)*i);
+				a.setHealth(hp);
+				if(i % 2 == 0)
+					a.moveToIndex(halfsize);
 				aliens.add(a);
 			}
 

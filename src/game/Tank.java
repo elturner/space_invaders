@@ -311,6 +311,10 @@ public class Tank
 				g.drawRect((int) xp, 
 					(int) yp, (int) width, 
 					(int) height);
+				g.drawLine((int) (xp + width/4), 
+					(int) (yp-1), 
+					(int) (xp + 3*width/4),
+					(int) (yp-1));
 				break;
 			case EXPLODING:
 				for(int i = 0; 
