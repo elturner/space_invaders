@@ -16,9 +16,9 @@ public class Tank
 	public static final double defaultSpeed = 5; /* pixels */
 	public static final double defaultAmmoRechargeRate = 0.2;
 						/* ammo per frame */
-	public static final double defaultAmmoReloadTime = 10;
+	public static final double defaultAmmoReloadTime = 8;
 					/* # of frames between shots */
-	public static final double defaultMaxAmmo = 20;
+	public static final double defaultMaxAmmo = 15;
 	
 	public static final Color bodyColor = Color.green.darker().darker();
 	public static final Color trimColor = Color.gray.brighter();
@@ -42,6 +42,7 @@ public class Tank
 	private double ammoReloadTime; /* # of frames between shots */
 	private double ammoReloadStage; /* # of frames until next shot */
 	private double maxAmmo;
+	private double ammoSizeFactor; /* how big are the shells */
 	private boolean overheated;
 
 	/*** Constructors ***/
@@ -59,6 +60,7 @@ public class Tank
 		ammoRechargeRate = defaultAmmoRechargeRate;
 		ammoReloadTime = defaultAmmoReloadTime;
 		ammoReloadStage = 0;
+		ammoSizeFactor = 1;
 		overheated = false;
 	}
 
@@ -166,11 +168,24 @@ public class Tank
 		{
 			case HEALTHY:
 			case SHIELDED:
+
+				/* spend one unit of ammo */
 				ammo -= 1;
 				ammoReloadStage = ammoReloadTime;
-				return new Shell(x + width/2 
-						- Shell.width/2,
-						y - Shell.height);
+
+				/* create new shell */
+				Shell s = new Shell(x + width/2 
+					- ammoSizeFactor
+					  	*Shell.defaultWidth/2,
+					y - Shell.defaultHeight
+						*ammoSizeFactor);
+				
+				/* set shell size */
+				s.width *= ammoSizeFactor;
+				s.height *= ammoSizeFactor;
+
+				/* return this shell */
+				return s;
 			default:
 				return null;
 		}
@@ -207,6 +222,11 @@ public class Tank
 	public void increaseSpeed()
 	{
 		speed += 2;
+	}
+
+	public void increaseAmmoSizeFactor()
+	{
+		ammoSizeFactor++;
 	}
 
 	/*** movement ***/
@@ -277,7 +297,9 @@ public class Tank
 				g.setColor(Color.gray);
 				g.drawLine((int) (xp + width/2), (int) yp, 
 					(int) (xp + width/2), 
-					(int) (yp - height/2));
+					(int) (yp - height*(1 -
+						((1+ammoReloadStage) 
+						/ (1+ammoReloadTime)))));
 				g.setColor(bodyColor);
 				g.fillRect((int) xp, (int) yp, 
 					(int) width, (int) height);

@@ -50,6 +50,10 @@ public class AlienChoreographer
 				return makeOval(level);
 			case 12:
 				return makeFigureEight(level/2);
+			case 13:
+				return makeRoamingBox(level, 3);
+			case 14:
+				return makeTheEnd(level);
 			default:
 				return makeBox(3, level);
 		}
@@ -342,6 +346,133 @@ public class AlienChoreographer
 			Alien a = new Alien(px, py, 0.001 * level);
 			aliens.add(a);
 		}
+
+		/* return constructed choreography */
+		return aliens;
+	}
+	
+	public static ArrayList<Alien> makeRoamingBox(int level, int hp)
+	{
+		/* figure out how many aliens to place */
+		int aliensPerRow = maxAliensPerRow/3;
+		int numberAlienRows = 6;
+
+		/* determine the horizontal travel distance for
+		 * these aliens */
+		double ht = Game.width - aliensPerRow*(Alien.width 
+					+ horizontalSpacing) 
+					+ horizontalSpacing;
+
+		/* make the path for the top-left alien */
+		double s = 1 + level/4; /* speed (in pixels / frame) */
+		int horisize = 1 + (int) (Math.round(ht / s));
+		int vertsize = 1 + (int) (Math.round(Game.height/2 / s));
+		int halfsize = horisize + vertsize;
+		double[] px = new double[2 * halfsize];
+		double[] py = new double[ px.length ];
+		for(int i = 0; i < horisize; i++)
+		{
+			px[i] = s*i;
+			py[i] = Alien.height;
+			
+			px[i+halfsize] = ht - px[i];
+			py[i+halfsize] = py[i] + Game.height/2;
+		}
+		for(int i = horisize; i < halfsize; i++)
+		{
+			px[i] = px[i-1];
+			py[i] = py[i-1] + s;
+			
+			px[i+halfsize] = px[0];
+			py[2*halfsize+horisize-i-1] = py[i];
+		}
+
+		/* place aliens in new list */
+		ArrayList<Alien> aliens = new ArrayList<Alien>();
+		for(int i = 0; i < numberAlienRows; i++)
+			for(int j = 0; j < aliensPerRow; j++)
+			{	
+				/* make health and fire rate
+				 * lower on the edges */
+				if(j >= hp && j <= aliensPerRow-hp-1)
+				{
+					Alien a = new Alien(px, py,
+						0.001 * level,
+						(horizontalSpacing 
+						+ Alien.width)*j, 
+						(verticalSpacing 
+						+ Alien.height)*i);
+					a.setHealth(hp);
+					aliens.add(a);
+				}
+				else if(j < hp)
+				{
+					Alien a = new Alien(px, py,
+						0.001 * level * (j+1) / hp,
+						(horizontalSpacing 
+						+ Alien.width)*j, 
+						(verticalSpacing 
+						+ Alien.height)*i);
+					a.setHealth(j+1);
+					aliens.add(a);
+				}
+				else
+				{
+					Alien a = new Alien(px, py,
+						0.001 * level 
+						* (aliensPerRow-j)/hp,
+						(horizontalSpacing 
+						+ Alien.width)*j, 
+						(verticalSpacing 
+						+ Alien.height)*i);
+					a.setHealth(aliensPerRow-j);
+					aliens.add(a);
+				}
+			}
+
+		/* return constructed choreography */
+		return aliens;
+	}
+	
+	public static ArrayList<Alien> makeTheEnd(int level)
+	{
+		/* make grid of where to place aliens */
+		int[][] grid = new int[][] {	
+				{1,1,1,1,1,0,2,0,2,0,3,3,3},
+				{0,0,1,0,0,0,2,0,2,0,3,0,0},
+				{0,0,1,0,0,0,2,2,2,0,3,3,3},
+				{0,0,1,0,0,0,2,0,2,0,3,0,0},
+				{0,0,1,0,0,0,2,0,2,0,3,3,3},
+				{0,0,0,0,0,0,0,0,0,0,0,0,0},
+				{2,2,2,0,3,0,0,0,3,0,1,1,0},
+				{2,0,0,0,3,3,0,0,3,0,1,0,1},
+				{2,2,2,0,3,0,3,0,3,0,1,0,1},
+				{2,0,0,0,3,0,0,3,3,0,1,0,1},
+				{2,2,2,0,3,0,0,0,3,0,1,1,0} };
+		
+		/* determine start location */
+		double startx = Game.width/2
+			- Alien.width*grid[0].length/2 
+			- horizontalSpacing*(grid[0].length - 1)/2;
+		double starty = verticalSpacing;
+
+		/* place aliens in new list */
+		ArrayList<Alien> aliens = new ArrayList<Alien>();
+		
+		/* place aliens */
+		for(int r = 0; r < grid.length; r++)
+			for(int c = 0; c < grid[r].length; c++)
+			{
+				/* place alien */
+				Alien a = new Alien(
+					startx + (Alien.width 
+						+ horizontalSpacing)*c, 
+					starty + (Alien.height
+						+ verticalSpacing)*r,
+					0.0005 * level);
+				a.setHealth(grid[r][c]);
+				aliens.add(a);
+			}
 
 		/* return constructed choreography */
 		return aliens;

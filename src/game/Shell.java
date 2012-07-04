@@ -12,21 +12,25 @@ import java.awt.Color;
 public class Shell
 {
 	/* Default values */
-	public static final double width = 4; /* pixels */
-	public static final double height = 7; /* pixels */
+	public static final double defaultWidth = 4; /* pixels */
+	public static final double defaultHeight = 7; /* pixels */
 	public static final double speed = 5; /* pixels, should be
 						* smaller than height */
 
 	/* position and dimensions */
 	public double x; /* left-hand side */
 	public double y; /* top */
-	
+	public double width; /* pixels */
+	public double height; /* pixels */
+
 	/*** Constructors ***/
 	public Shell(double px, double py)
 	{
 		/* store characteristics */
 		x = px;
 		y = py;
+		width = defaultWidth;
+		height = defaultHeight;
 	}
 
 	/*** movement ***/

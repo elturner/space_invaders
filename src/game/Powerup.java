@@ -16,14 +16,15 @@ public class Powerup
 	public static final int SPEEDBOOST = 1;
 	public static final int AMMOBOOST = 2;
 	public static final int RAPIDFIRE = 3;
-	public static final int NUM_POWERUP_TYPES = 4;
+	public static final int BIGGERAMMO = 4;
+	public static final int NUM_POWERUP_TYPES = 5;
 
 	/* constants */
 	public static final int lifespan = 400;
 	public static final double width = 15;
 	public static final double height = 15;
 	public static final double speed = 5;
-	public static final double dropRate = 0.01;
+	public static final double dropRate = 0.02;
 
 	/* characteristics */
 	private int type;
@@ -114,6 +115,12 @@ public class Powerup
 				t.setAmmoReloadTime(0);
 				timeToLive = 30;
 				break;
+			case BIGGERAMMO:
+				/* increase the size of the shells
+				 * that this tank fires */
+				t.increaseAmmoSizeFactor();
+				timeToLive = 30;
+				break;
 			default:
 				System.out.println(
 					"Unknown powerup type: " + type);
@@ -173,6 +180,13 @@ public class Powerup
 				g.setFont(new Font("powerup",
 					Font.PLAIN, 14));
 				g.drawString("Rapid Fire", (int)x, 
+						(int)(y-30+timeToLive));
+				break;
+			case BIGGERAMMO:
+				g.setColor(Color.white);
+				g.setFont(new Font("powerup",
+					Font.PLAIN, 14));
+				g.drawString("Bigger Ammo", (int)x, 
 						(int)(y-30+timeToLive));
 				break;
 			default:
