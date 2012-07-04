@@ -38,6 +38,7 @@ public class Game implements AnimatedElement
 	private ArrayList<Alien> aliens;
 	private ArrayList<Phaser> phasers;
 	private ArrayList<Shell> shells;
+	private ArrayList<Powerup> powerups;
 	private Tank tank;
 
 	/* game state */
@@ -72,9 +73,10 @@ public class Game implements AnimatedElement
 		/* initialize objects */
 		phasers = new ArrayList<Phaser>();
 		shells = new ArrayList<Shell>();
+		powerups = new ArrayList<Powerup>();
 		tank = new Tank(width/2 - Tank.width/2,
 					height - 2*Tank.height);
-	
+
 		/* populate aliens */
 		aliens = AlienChoreographer.makeAliensForLevel(level);
 	}
@@ -129,7 +131,14 @@ public class Game implements AnimatedElement
 		{
 			Alien a = ita.next();
 			if(!a.isAlive())
+			{
+				/* remove alien corpse */
 				ita.remove();
+
+				/* randomly drop powerups */
+				if(Math.random() < Powerup.dropRate)
+					powerups.add(new Powerup(a.x, a.y));
+			}
 		}
 
 		/* check if all aliens dead */
@@ -213,7 +222,23 @@ public class Game implements AnimatedElement
 			if(isHit)
 				a.getHit();
 		}
-		
+	
+		/* check collisions between powerups and tank */
+		for(Iterator<Powerup> itp = powerups.iterator();
+							itp.hasNext(); )
+		{
+			Powerup p = itp.next();
+			p.update();
+
+			/* check if p upgrades tank */
+			if(tank.collidesWith(p.x, p.y, p.width, p.height))
+				p.upgradeTank(tank);
+
+			/* check if p is expired */
+			if(p.isExpired())
+				itp.remove();
+		}
+
 		/* check if tank fires weapon */
 		if(controller.isToggled(CONTROL_FIRE))
 		{
@@ -319,6 +344,10 @@ public class Game implements AnimatedElement
 		/* render aliens */
 		for(int i = 0; i < aliens.size(); i++)
 			aliens.get(i).render(g);
+	
+		/* render powerups */
+		for(int i = 0; i < powerups.size(); i++)
+			powerups.get(i).render(g);
 
 		/* render tank */
 		tank.render(g);
@@ -366,7 +395,8 @@ public class Game implements AnimatedElement
 		renderPause(uptimeMillis);
 
 		/* check for unpause */
-		if(controller.isActivated(CONTROL_PAUSE))
+		if(controller.isActivated(CONTROL_PAUSE)
+				|| controller.isActivated(CONTROL_START))
 			currentState = GameState.PLAYING;
 
 		/* reset all persistant controls */

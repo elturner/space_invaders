@@ -5,6 +5,7 @@ SOURCES=	src/driver/SpaceInvaders.java \
 		src/game/AlienChoreographer.java \
 		src/game/Game.java \
 		src/game/Phaser.java \
+		src/game/Powerup.java \
 		src/game/Shell.java \
 		src/game/Tank.java \
 		src/gui/Controller.java \

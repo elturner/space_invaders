@@ -12,6 +12,7 @@ import java.util.ArrayList;
 
 public class AlienChoreographer
 {
+	/* useful spacing constants */
 	public static final double horizontalSpacing = 20; /* pixels */
 	public static final double verticalSpacing = 20; /* pixels */
 	public static final int maxAliensPerRow 
@@ -25,15 +26,33 @@ public class AlienChoreographer
 	 * the current level */
 	public static ArrayList<Alien> makeAliensForLevel(int level)
 	{
-		if(level < 4)
-			return makeBox(level, 1);
-		if(level < 6)
-			return makeFlippingBox(level);
-		if(level < 8)
-			return makeOval(level);
-		if(level < 9)
-			return makeBox(2, 3);
-		return makeBox(3, level);
+		switch(level)
+		{
+			case 1:
+			case 2:
+				return makeBox(level, 1);
+			case 3:
+			case 4:
+				return makeFlippingBox(level);
+			case 5:
+				return makeOval(level);
+			case 6:
+				return makeBox(2, 3);
+			case 7:
+				return makeFigureEight(level/2);
+			case 8:
+				return makeRace(level);
+			case 9:
+				return makeWave(level/3);
+			case 10:
+				return makeRandom(level);
+			case 11:
+				return makeOval(level);
+			case 12:
+				return makeFigureEight(level/2);
+			default:
+				return makeBox(3, level);
+		}
 	}
 
 	public static ArrayList<Alien> makeBox(int level, int hp)
@@ -176,4 +195,155 @@ public class AlienChoreographer
 		return aliens;
 	}
 
+	public static ArrayList<Alien> makeFigureEight(int level)
+	{
+		/* figure out how many aliens to place */
+		double v_rad = Game.height / 3;
+		double h_rad = (Game.width - Alien.width) / 2;
+		double circumference = (v_rad + h_rad) * Math.PI;
+		int maxNumAliens = (int) Math.ceil(circumference 
+				/ (horizontalSpacing + Alien.width));
+		
+		int numAliens = level * maxNumAliens / 10;
+		if(level > 10)
+			numAliens = maxNumAliens;	
+
+		/* make the path for each alien */
+		double s = 1 + level; /* speed of each alien */
+		int len = (int) Math.round(circumference / s);
+		double[] px = new double[ len ];
+		double[] py = new double[ len ];
+		for(int i = 0; i < len; i++)
+		{
+			px[i] = h_rad + h_rad*Math.cos(2*Math.PI * i/len);
+			py[i] = v_rad + v_rad*Math.sin(4*Math.PI * i/len);
+		}
+
+		/* place aliens in new list */
+		ArrayList<Alien> aliens = new ArrayList<Alien>();
+		for(int i = 0; i < numAliens; i++)
+		{
+			Alien a = new Alien(px, py, 0.001 * level);
+			a.moveToIndex(i * len / numAliens); 
+			
+			if(level % 2 == 1)
+				a.setHealth(2);
+			else
+				a.setHealth(3);
+
+			aliens.add(a);
+		}
+
+		/* return constructed choreography */
+		return aliens;
+	}
+
+	public static ArrayList<Alien> makeRace(int level)
+	{
+		/* figure out how many aliens to place */
+		int numAliens = (int) ( 20 + 3*level*Math.random());
+
+		/* place aliens in new list */
+		ArrayList<Alien> aliens = new ArrayList<Alien>();
+		for(int i = 0; i < numAliens; i++)
+		{
+			/* make straight line across screen at
+			 * random height */
+			int len = (int) ( ( Game.width + Alien.width ) 
+					/ (1 + 9*Math.random()) );
+			double[] px = new double[ len ];
+			double[] py = new double[ len ];
+			double h = Math.random() * Game.height * 2/3;
+			for(int j = 0; j < len; j++)
+			{
+				px[j] = (Game.width + Alien.width)*j/len 
+							- Alien.width;
+				py[j] = h;
+			}
+
+			/* make a new alien */
+			Alien a = new Alien(px, py, 0.0005 * level);
+			a.setHealth(3);
+			a.moveToIndex( (int) (Math.random() * len) );
+			aliens.add(a);
+		}
+
+		/* return constructed choreography */
+		return aliens;
+	}
+
+	public static ArrayList<Alien> makeWave(int level)
+	{
+		/* figure out how many aliens to place */
+		int numAliens = (int) ((Game.width + horizontalSpacing)
+				/ (Alien.width + horizontalSpacing));
+
+		/* make the path for each alien */
+		double s = 1 + level; /* speed of each alien */
+		int len = (int) Math.round((Game.height * 2/3) / s);
+		double[] px = new double[ len ];
+		double[] py = new double[ len ];
+		for(int i = 0; i < len; i++)
+		{
+			px[i] = 0;
+			py[i] = Game.height * 5/12 
+				* (1 + Math.sin(2*Math.PI*i/len));
+		}
+
+		/* place aliens in new list */
+		ArrayList<Alien> aliens = new ArrayList<Alien>();
+		for(int i = 0; i < numAliens; i++)
+		{
+			Alien a = new Alien(px, py, 0.005 * level,
+				(Alien.width + horizontalSpacing) * i, 0);
+			a.moveToIndex(i * len / numAliens); 
+			a.setHealth(3);
+			aliens.add(a);
+		}
+
+		/* return constructed choreography */
+		return aliens;
+	}
+	
+	public static ArrayList<Alien> makeRandom(int level)
+	{
+		/* figure out how many aliens to place */
+		int numAliens = 2*level;
+
+		/* make the path for each alien */
+		int len = 10*level;
+
+		/* place aliens in new list */
+		ArrayList<Alien> aliens = new ArrayList<Alien>();
+		for(int i = 0; i < numAliens; i++)
+		{
+			/* make random set of coordinates */
+			double[] px = new double[ len ];
+			double[] py = new double[ len ];
+			for(int j = 0; j < len; j++)
+			{
+				/* stay at each location for a few
+				 * timesteps */
+				if(j % 30 == 0)
+				{
+					px[j] = (Game.width - Alien.width)
+						* Math.random();
+					py[j] = (Game.height * 3/4)
+						* Math.random();
+				}
+				else
+				{
+					px[j] = px[j-1];
+					py[j] = py[j-1];
+				}
+			}
+
+			/* make new alien */
+			Alien a = new Alien(px, py, 0.001 * level);
+			aliens.add(a);
+		}
+
+		/* return constructed choreography */
+		return aliens;
+	}
 }

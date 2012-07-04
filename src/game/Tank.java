@@ -16,8 +16,10 @@ public class Tank
 	public static final double defaultSpeed = 5; /* pixels */
 	public static final double defaultAmmoRechargeRate = 0.2;
 						/* ammo per frame */
-	public static final double defaultMaxAmmo = 30;
-
+	public static final double defaultAmmoReloadTime = 10;
+					/* # of frames between shots */
+	public static final double defaultMaxAmmo = 20;
+	
 	public static final Color bodyColor = Color.green.darker().darker();
 	public static final Color trimColor = Color.gray.brighter();
 	public static final Color shieldColor = new Color(0, 150, 230, 60);
@@ -37,6 +39,8 @@ public class Tank
 					state been active? */
 	private double ammo; /* how many shot you have left */
 	private double ammoRechargeRate;
+	private double ammoReloadTime; /* # of frames between shots */
+	private double ammoReloadStage; /* # of frames until next shot */
 	private double maxAmmo;
 	private boolean overheated;
 
@@ -53,6 +57,8 @@ public class Tank
 		maxAmmo = defaultMaxAmmo;
 		ammo = maxAmmo;
 		ammoRechargeRate = defaultAmmoRechargeRate;
+		ammoReloadTime = defaultAmmoReloadTime;
+		ammoReloadStage = 0;
 		overheated = false;
 	}
 
@@ -109,8 +115,11 @@ public class Tank
 					stateCounter = 0;
 				}
 			case HEALTHY:
-				/* update ammo */
-				if(ammo < maxAmmo)
+				
+				/* reload if necessary */
+				if(ammoReloadStage > 0)
+					ammoReloadStage--;
+				else if(ammo < maxAmmo) /* update ammo */
 				{
 					ammo += ammoRechargeRate;
 					if(!overheated)
@@ -118,6 +127,8 @@ public class Tank
 					else if(overheated
 						&& ammo > 0.5 * maxAmmo)
 						overheated = false;
+					if(ammo > maxAmmo)
+						ammo = maxAmmo;
 				}
 				break;
 			case EXPLODING:
@@ -146,12 +157,17 @@ public class Tank
 			return null;
 		}
 
+		/* make sure not reloading */
+		if(ammoReloadStage > 0)
+			return null;
+
 		/* can only fire in certain states */
 		switch(currentState)
 		{
 			case HEALTHY:
 			case SHIELDED:
 				ammo -= 1;
+				ammoReloadStage = ammoReloadTime;
 				return new Shell(x + width/2 
 						- Shell.width/2,
 						y - Shell.height);
@@ -159,6 +175,8 @@ public class Tank
 				return null;
 		}
 	}
+
+	/*** accessors ***/
 
 	public double ammoPercentage()
 	{
@@ -168,6 +186,27 @@ public class Tank
 	public boolean overheated()
 	{
 		return overheated;
+	}
+
+	public void setAmmoRechargeRate(double arr)
+	{
+		ammoRechargeRate = arr;
+	}
+
+	public void setAmmoReloadTime(double art)
+	{
+		ammoReloadTime = art;
+	}
+
+	public void setShielded()
+	{
+		currentState = TankState.SHIELDED;
+		stateCounter = 0;
+	}
+
+	public void increaseSpeed()
+	{
+		speed += 2;
 	}
 
 	/*** movement ***/

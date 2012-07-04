@@ -14,11 +14,11 @@ public class Alien
 	/* Default values */
 	public static final double width = 20; /* pixels */
 	public static final double height = 10; /* pixels */
-	public static final Color deadColor = Color.gray;
 	public static final Color oneHitColor = Color.green;
 	public static final Color twoHitColor = Color.red;
 	public static final Color manyHitColor = Color.blue;
 	public static final int deathTimerLength = 30;
+	public static final int hitTimerLength = 5;
 
 	/* position and dimensions */
 	public double x; /* left-hand side */
@@ -33,6 +33,7 @@ public class Alien
 	/* stats */
 	private int health;	
 	private int deathTimer;
+	private int hitTimer;
 
 	/*** Constructors ***/
 
@@ -54,6 +55,7 @@ public class Alien
 		/* default health */
 		health = 1;
 		deathTimer = deathTimerLength; 
+		hitTimer = 0;
 	}
 
 	/* make alien that follows path */
@@ -118,6 +120,14 @@ public class Alien
 		if(health <= 0)
 			deathTimer--;
 
+		/* decrement hit timer, if necessary */
+		if(hitTimer > 0)
+			hitTimer--;
+
+		/* randomly decelerate as dying */
+		if(Math.random() > ((double) deathTimer) / deathTimerLength)
+			return;
+
 		/* move to next position */
 		pathInd++;
 		pathInd %= pathX.length;
@@ -167,8 +177,16 @@ public class Alien
 	 */
 	public void getHit()
 	{
+		/* if we got hit recently, get temporary shield */
+		if(hitTimer > 0)
+			return;
+
+		/* register hit if still have health */
 		if(health > 0)
+		{
 			health--;
+			hitTimer = hitTimerLength;
+		}
 	}
 
 	/* isAlive:
@@ -188,7 +206,8 @@ public class Alien
 		switch(health)
 		{
 			case 0:
-				g.setColor(deadColor);
+				int c = 128 * deathTimer / deathTimerLength;
+				g.setColor(new Color(c,c,c));
 				break;
 			case 1:
 				g.setColor(oneHitColor);
