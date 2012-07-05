@@ -28,6 +28,7 @@ public class Game implements AnimatedElement
 	public static final String CONTROL_FIRE = "fire";
 	public static final String CONTROL_BOMB = "bomb";
 	public static final String CONTROL_START = "start";
+	public static final String CONTROL_CHEAT = "cheat";
 
 	/* gui */
 	private Controller controller;
@@ -186,17 +187,6 @@ public class Game implements AnimatedElement
 			}
 		}
 
-		/* check collisions between tank and aliens */
-		for(Iterator<Alien> ita = aliens.iterator(); ita.hasNext();)
-		{
-			Alien a = ita.next();
-			if(tank.collidesWith(a.x, a.y, a.width, a.height))
-			{
-				tank.getHit();
-				ita.remove();
-			}
-		}
-	
 		/* check collisions between shells and aliens */
 		for(Iterator<Alien> ita = aliens.iterator(); ita.hasNext();)
 		{
@@ -246,9 +236,14 @@ public class Game implements AnimatedElement
 			if(s != null)
 				shells.add(s);
 		}
-		// TODO limit bombs
+		
+		// TODO remove cheat buttons
 		if(controller.isActivated(CONTROL_BOMB))
 			aliens.clear();
+		if(controller.isActivated(CONTROL_CHEAT))
+			powerups.add(new Powerup(
+				tank.x + tank.width/2 - Powerup.width/2,
+						tank.y - 5*tank.height));
 
 		/* check if aliens fire weapons */
 		for(Iterator<Alien> ita = aliens.iterator(); ita.hasNext();)

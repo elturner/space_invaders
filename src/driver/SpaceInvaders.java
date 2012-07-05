@@ -72,5 +72,7 @@ public class SpaceInvaders
 						game.CONTROL_BOMB);
 		controller.bindPersistant(KeyEvent.VK_SPACE,
 						game.CONTROL_START);
+		controller.bindPersistant(KeyEvent.VK_C,
+						game.CONTROL_CHEAT);
 	}
 }

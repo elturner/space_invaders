@@ -29,8 +29,8 @@ public class Tank
 	public static final int NUM_EXPLOSIONS_PER_FRAME = 3;
 
 	/* position and dimensions */
-	private double x; /* left-hand side */
-	private double y; /* top */
+	public double x; /* left-hand side */
+	public double y; /* top */
 	private double speed; /* pixels */
 
 	/* tank state */
@@ -298,7 +298,7 @@ public class Tank
 				g.drawLine((int) (xp + width/2), (int) yp, 
 					(int) (xp + width/2), 
 					(int) (yp - height*(1 -
-						((1+ammoReloadStage) 
+						(ammoReloadStage
 						/ (1+ammoReloadTime)))));
 				g.setColor(bodyColor);
 				g.fillRect((int) xp, (int) yp, 
