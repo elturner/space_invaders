@@ -20,7 +20,7 @@ public class Game implements AnimatedElement
 	/* constants */
 	public static final int width = 1200;
 	public static final int height = 800;
-	public static final String bgimage = "../files/images/stars.gif";
+	public static final String bgimage = "files/images/stars.gif";
 
 	public static final String CONTROL_PAUSE = "pause";
 	public static final String CONTROL_LEFT = "left";
@@ -312,9 +312,12 @@ public class Game implements AnimatedElement
 		Graphics g = display.draw();
 
 		/* render background */
-		g.setColor(Color.black);
-		if(background == null)
+		if(background == null || background.getIconWidth() <= 0
+				|| background.getIconHeight() <= 0)
+		{
+			g.setColor(Color.black);
 			g.fillRect(0, 0, width, height);
+		}
 		else
 		{
 			int w = background.getIconWidth();

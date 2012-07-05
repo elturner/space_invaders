@@ -15,6 +15,10 @@ SOURCES=	src/driver/SpaceInvaders.java \
 
 compile:
 	javac -d bin $(SOURCES)
+	cp -r files bin/
+
+jar:
+	jar cmf manifests/spaceInvadersMainClass SpaceInvaders.jar -C bin .
 
 todo:
 	grep --color=auto -nH -F "TODO" $(SOURCES)
@@ -24,7 +28,7 @@ size:
 	wc $(SOURCES)
 
 clean:
-	rm -f -r bin/*
+	rm -f -r *.jar bin/*
 
 run:
 	cd bin ; java driver.SpaceInvaders ; cd ..
