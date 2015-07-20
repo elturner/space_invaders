@@ -24,4 +24,4 @@ drop a powerup:    c
 Screenshots
 -----------
 
-![Example Screenshot](https://raw.githubusercontent.com/elturner/space_invaders/tree/master/files/images/example_screenshot.png)
+![Example Screenshot](https://raw.githubusercontent.com/elturner/space_invaders/master/files/images/example_screenshot.png)
